@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>OblivionXbot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body {
+      background-color: #121212;
+      color: white;
+      font-family: sans-serif;
+      padding: 20px;
+      margin: 0;
+    }
+
+    button {
+      background: #333;
+      color: white;
+      padding: 10px;
+      margin: 5px 0;
+      width: 100%;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .active {
+      display: block;
+    }
+
+    .review {
+      margin-bottom: 20px;
+      padding: 10px;
+      background-color: #1a1a1a;
+      border-radius: 8px;
+    }
+
+    .review .stars {
+      color: gold;
+    }
+
+    #starSelect span {
+      padding: 5px;
+      font-size: 24px;
+      color: #777;
+      cursor: pointer;
+    }
+
+    #starSelect span.selected {
+      color: gold;
+    }
+
+    #modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+
+    #modalContent {
+      background: #2c2c2c;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      max-width: 300px;
+      margin: auto;
+    }
+  </style>
+</head>
+<body>
+  <div id="main" class="page active">
+    <h1>OblivionXBot</h1>
+    <p>Выберите раздел для перехода</p>
+    <button onclick="showPage('reviews')">Отзывы</button>
+    <button onclick="showPage('tutorial')">Туториал</button>
+    <button onclick="showPage('payment')">Покупка</button>
+    <button onclick="Telegram.WebApp.openTelegramLink('https://t.me/OblivionXsoft')">Наш Telegram</button>
+    <button onclick="alert('Здесь будет скам лист')">Скам лист</button>
+    <button onclick="alert('Поддержка скоро будет доступна')">Техподдержка</button>
+    <button onclick="alert('Здесь будет FAQ')">FAQ</button>
+  </div>
+
+  <div id="reviews" class="page">
+    <h2>Отзывы</h2>
+
+    <div class="review">
+      <p>"Отличный софт, окуп с первой попытки"</p>
+      <p class="stars">★★★★★</p>
+    </div>
+    <div class="review">
+      <p>"Долго не верил, но реально работает"</p>
+      <p class="stars">★★★★☆</p>
+    </div>
+    <div class="review">
+      <p>"ЕЕЕЕБАААть , это уровень "</p>
+      <p class="stars">★★★★★</p>
+    </div>
+
+    <!-- Форма отзыва -->
+    <div id="reviewForm" style="margin-top: 20px;">
+      <h3>Оставить отзыв</h3>
+      <div id="starSelect">
+        <span data-star="1">★</span>
+        <span data-star="2">★</span>
+        <span data-star="3">★</span>
+        <span data-star="4">★</span>
+        <span data-star="5">★</span>
+      </div>
+      <textarea id="reviewText" placeholder="Ваш отзыв..." style="width: 100%; margin-top: 10px; padding: 10px; background-color: #1a1a1a; color: white; border-radius: 8px; border: none;"></textarea>
+      <button onclick="submitReview()">Отправить</button>
+    </div>
+
+    <!-- Модалка -->
+    <div id="modal">
+      <div id="modalContent">
+        <p style="font-weight:bold; font-size:18px;">Спасибо за отзыв!</p>
+        <p>Ваш отзыв отправлен на модерацию и будет опубликован после проверки администратором.</p>
+        <button onclick="closeModal()">Понятно</button>
+      </div>
+    </div>
+
+    <button onclick="showPage('main')">Назад</button>
+  </div>
+
+  <div id="tutorial" class="page">
+    <h2>Как пользоваться</h2>
+    <video controls width="100%">
+      <source src="https://kinescope.io/embed/0Z4XKuDcBeZ2J7v1aC2CgT" type="video/mp4">
+      Ваш браузер не поддерживает видео.
+    </video>
+    <button onclick="showPage('main')">Назад</button>
+  </div>
+
+  <div id="payment" class="page">
+    <h2>Оплата</h2>
+    <p>Скины, Крипта, СБП</p>
+    <p>Напиши админу: @admin_username</p>
+    <button onclick="showPage('main')">Назад</button>
+  </div>
+
+  <script>
+    function showPage(id) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    let selectedRating = 0;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll('#starSelect span').forEach(star => {
+        star.addEventListener('click', () => {
+          selectedRating = parseInt(star.dataset.star);
+          document.querySelectorAll('#starSelect span').forEach(s => s.classList.remove('selected'));
+          for (let i = 0; i < selectedRating; i++) {
+            document.querySelectorAll('#starSelect span')[i].classList.add('selected');
+          }
+        });
+      });
+    });
+
+    function submitReview() {
+      const text = document.getElementById('reviewText').value.trim();
+      if (selectedRating === 0 || text === '') {
+        alert('Пожалуйста, выберите количество звёзд и введите отзыв.');
+        return;
+      }
+      document.getElementById('modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('modal').style.display = 'none';
+      document.getElementById('reviewText').value = '';
+      selectedRating = 0;
+      document.querySelectorAll('#starSelect span').forEach(s => s.classList.remove('selected'));
+    }
+  </script>
+</body>
+</html>
